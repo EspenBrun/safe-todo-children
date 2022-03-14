@@ -18,6 +18,14 @@ type Storage() =
         else
             Error "Invalid todo"
 
+    member __.UpdateTodo(todo: Todo) =
+        if Todo.isValid todo.Description then
+            let replaceAtIndex = todos.FindIndex(fun x -> x.Id = todo.Id)
+            todos.[replaceAtIndex] <- todo
+            Ok()
+        else
+            Error "Invalid todo"
+
 let storage = Storage()
 
 storage.AddTodo(Todo.create "Create new SAFE project")
@@ -37,7 +45,14 @@ let todosApi =
                   match storage.AddTodo todo with
                   | Ok () -> return todo
                   | Error e -> return failwith e
-              } }
+              }
+      updateTodo =
+          fun todo ->
+              async {
+                  match storage.AddTodo todo with
+                  | Ok () -> return todo
+                  | Error e -> return failwith e
+              }}
 
 let webApp =
     Remoting.createApi ()
